@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class SlowPatrollingState : StateBase
+public class NormalPatrollingState : StateBase
 {
-    private SlowEnemyController controller;
+    private NormalEnemyController controller;
     private Vector3 origin;
     private bool walking;
     private float lastWalkTime;
@@ -11,7 +11,7 @@ public class SlowPatrollingState : StateBase
     
     
 
-    public SlowPatrollingState(SlowEnemyController _controller) {
+    public NormalPatrollingState(NormalEnemyController _controller) {
         controller = _controller;
         origin = _controller.transform.position;
     }

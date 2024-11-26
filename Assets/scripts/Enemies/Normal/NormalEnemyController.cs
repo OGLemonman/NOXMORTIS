@@ -1,13 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
-public class SlowEnemyController : MonoBehaviour
+public class NormalEnemyController : MonoBehaviour
 {
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
     public Transform target;
-    public SlowEnemyGizmosSettings gizmosSettings;
+    public NormalEnemyGizmosSettings gizmosSettings;
     public float sightDistance = 10f;
     public float sightCone = 90f;
     public float followSpeed = 6f;
@@ -24,9 +24,9 @@ public class SlowEnemyController : MonoBehaviour
     void Start() {
         rb = GetComponent<Rigidbody>();
         stateMachine = new StateMachine();
-        stateMachine.AddState("Patrolling", new SlowPatrollingState(this));
-        stateMachine.AddState("Following", new SlowFollowingState(this));
-        stateMachine.AddState("Attacking", new SlowAttackingState(this));
+        stateMachine.AddState("Patrolling", new NormalPatrollingState(this));
+        stateMachine.AddState("Following", new NormalFollowingState(this));
+        stateMachine.AddState("Attacking", new NormalAttackingState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
@@ -100,7 +100,7 @@ public class SlowEnemyController : MonoBehaviour
     }
 
     [System.Serializable]
-    public struct SlowEnemyGizmosSettings {
+    public struct NormalEnemyGizmosSettings {
         public bool patrolCone;
         public bool followCone;
         public bool attackCone;
