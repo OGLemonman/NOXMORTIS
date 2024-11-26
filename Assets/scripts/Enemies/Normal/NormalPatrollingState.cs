@@ -34,7 +34,8 @@ public class NormalPatrollingState : StateBase
     }
 
     public override void OnUpdate() {
-        if (SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.sightDistance, controller.sightCone)) {
+        if (SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.sightDistance, controller.sightCone) ||
+            SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.hearDistance, controller.hearCone)) {
             controller.ChangeState("Following");
             return;
         }

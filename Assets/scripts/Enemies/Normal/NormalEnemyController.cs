@@ -10,6 +10,8 @@ public class NormalEnemyController : MonoBehaviour
     public NormalEnemyGizmosSettings gizmosSettings;
     public float sightDistance = 10f;
     public float sightCone = 90f;
+    public float hearDistance = 5f;
+    public float hearCone = 360f;
     public float followSpeed = 6f;
     public float followSightDistance = 20f;
     public float followSightCone = 120f;
@@ -73,6 +75,18 @@ public class NormalEnemyController : MonoBehaviour
             Gizmos.DrawLine(transform.position, transform.position  + vectorE * attackSightDistance);
             Gizmos.DrawLine(transform.position, transform.position  + vectorF * attackSightDistance);
         }
+
+        // Hearing
+        if (gizmosSettings.hearCone) {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, hearDistance);
+
+            Vector3 vectorA = Quaternion.AngleAxis(hearCone/2, Vector3.up) * transform.forward;
+            Vector3 vectorB = Quaternion.AngleAxis(-hearCone/2, Vector3.up) * transform.forward;
+
+            Gizmos.DrawLine(transform.position, transform.position  + vectorA * hearDistance);
+            Gizmos.DrawLine(transform.position, transform.position  + vectorB * hearDistance);
+        }
     }
 
     public void TryAttack() {
@@ -86,11 +100,11 @@ public class NormalEnemyController : MonoBehaviour
 
     IEnumerator Attack() {
         animator.SetInteger("State", 2);
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(1);
         if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
             target.GetComponent<playerstats>().currentHP -= damage;
         }
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(2);
         ChangeState("Following");
         yield return null;
     }
@@ -104,5 +118,6 @@ public class NormalEnemyController : MonoBehaviour
         public bool patrolCone;
         public bool followCone;
         public bool attackCone;
+        public bool hearCone;
     }
 }

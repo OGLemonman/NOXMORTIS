@@ -9,6 +9,7 @@ public class NormalFollowingState : StateBase
     }
 
     public override void OnEnter() {
+        controller.transform.LookAt(new Vector3(controller.target.position.x, controller.transform.position.y, controller.target.position.z));
         controller.animator.SetInteger("State", 0);
     }
 
