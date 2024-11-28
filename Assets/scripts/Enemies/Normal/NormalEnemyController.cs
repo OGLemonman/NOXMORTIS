@@ -3,6 +3,10 @@ using System.Collections;
 
 public class NormalEnemyController : MonoBehaviour
 {
+    public AudioSource walkSource;
+    public AudioSource miscSource;
+    public AudioClip growlAudio;
+    public AudioClip attackAudio;
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
@@ -116,6 +120,7 @@ public class NormalEnemyController : MonoBehaviour
     IEnumerator Attack() {
         animator.SetInteger("State", 2);
         yield return new WaitForSeconds(1);
+        miscSource.PlayOneShot(attackAudio);
         if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
             target.GetComponent<playerstats>().currentHP -= damage;
         }

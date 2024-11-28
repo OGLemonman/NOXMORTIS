@@ -8,8 +8,8 @@ public class NormalPatrollingState : StateBase
     private float lastWalkTime;
     private float randomWaitTime;
     private Vector3 destination;
-    
-    
+    private float lastGrowl = -1000;
+    private float growlCooldown;
 
     public NormalPatrollingState(NormalEnemyController _controller) {
         controller = _controller;
@@ -62,6 +62,12 @@ public class NormalPatrollingState : StateBase
                 randomWaitTime = Random.Range(2f, 8f);
                 walking = false;
             }
+        }
+
+        if (Time.realtimeSinceStartup - lastGrowl > growlCooldown) {
+            lastGrowl = Time.realtimeSinceStartup;
+            growlCooldown = Random.Range(3f, 10f);
+            controller.miscSource.PlayOneShot(controller.growlAudio);
         }
     }
 }
