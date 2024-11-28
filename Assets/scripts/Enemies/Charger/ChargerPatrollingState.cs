@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public class SlowPatrollingState : StateBase
+public class ChargerPatrollingState : StateBase
 {
-    private SlowEnemyController controller;
+    private ChargerEnemyController controller;
     private Vector3 origin;
     private bool walking;
     private float lastWalkTime;
@@ -11,7 +11,7 @@ public class SlowPatrollingState : StateBase
     
     
 
-    public SlowPatrollingState(SlowEnemyController _controller) {
+    public ChargerPatrollingState(ChargerEnemyController _controller) {
         controller = _controller;
         origin = _controller.transform.position;
     }
@@ -36,7 +36,7 @@ public class SlowPatrollingState : StateBase
     public override void OnUpdate() {
         if (SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.sightDistance, controller.sightCone) ||
             SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.hearDistance, controller.hearCone)) {
-            controller.ChangeState("Following");
+            controller.ChangeState("Attacking");
             return;
         }
 

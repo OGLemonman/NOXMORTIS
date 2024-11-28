@@ -1,10 +1,10 @@
 using UnityEngine;
 
-public class SlowFollowingState : StateBase
+public class NormalFollowingState : StateBase
 {
-    private SlowEnemyController controller;
+    private NormalEnemyController controller;
 
-    public SlowFollowingState(SlowEnemyController _controller) {
+    public NormalFollowingState(NormalEnemyController _controller) {
         controller = _controller;
     }
 
