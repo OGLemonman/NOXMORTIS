@@ -22,6 +22,7 @@ public class NormalEnemyController : MonoBehaviour
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
+    private IEnumerator attackCoroutine;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -29,11 +30,24 @@ public class NormalEnemyController : MonoBehaviour
         stateMachine.AddState("Patrolling", new NormalPatrollingState(this));
         stateMachine.AddState("Following", new NormalFollowingState(this));
         stateMachine.AddState("Attacking", new NormalAttackingState(this));
+        stateMachine.AddState("Stunned", new NormalStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if (!other.CompareTag("TazerProjectile")) return;
+
+        if (attackCoroutine != null) {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        ChangeState("Stunned");
+        other.gameObject.SetActive(false);
     }
 
     void OnDrawGizmos() {
@@ -92,7 +106,8 @@ public class NormalEnemyController : MonoBehaviour
     public void TryAttack() {
         if (Time.realtimeSinceStartup - lastAttack > attackCooldown) {
             lastAttack = Time.realtimeSinceStartup;
-            StartCoroutine(Attack());
+            attackCoroutine = Attack();
+            StartCoroutine(attackCoroutine);
         } else {
             ChangeState("Following");
         }
