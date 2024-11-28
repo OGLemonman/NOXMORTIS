@@ -12,24 +12,46 @@ public class ChargerEnemyController : MonoBehaviour
     public float sightCone = 90f;
     public float hearDistance = 5f;
     public float hearCone = 360f;
-    public float chargedDist = 20f;
     public float chargeSpeed = 9f;
+    public float chargeDuration = 2f;
     public float attackCooldown = 3f;
     public float damage = 70f;
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
+    private IEnumerator attackCoroutine;
+    private bool isCharging;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
         stateMachine = new StateMachine();
         stateMachine.AddState("Patrolling", new ChargerPatrollingState(this));
         stateMachine.AddState("Attacking", new ChargerAttackingState(this));
+        stateMachine.AddState("Stunned", new ChargerStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if (!other.CompareTag("TazerProjectile")) return;
+
+        if (attackCoroutine != null) {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        isCharging = false;
+        ChangeState("Stunned");
+        other.gameObject.SetActive(false);
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        if (!isCharging || !collision.gameObject.CompareTag("Player")) return;
+
+        target.GetComponent<playerstats>().currentHP -= damage;
     }
 
     void OnDrawGizmos() {
@@ -64,7 +86,8 @@ public class ChargerEnemyController : MonoBehaviour
     public void TryAttack() {
         if (Time.realtimeSinceStartup - lastAttack > attackCooldown) {
             lastAttack = Time.realtimeSinceStartup;
-            StartCoroutine(Attack());
+            attackCoroutine = Attack();
+            StartCoroutine(attackCoroutine);
         } else {
             ChangeState("Patrolling");
         }
@@ -72,21 +95,25 @@ public class ChargerEnemyController : MonoBehaviour
 
     IEnumerator Attack() {
         animator.SetInteger("State", 0);
-        Vector3 destination = transform.position + (target.position - transform.position).normalized * chargedDist;
-        transform.LookAt(new Vector3(destination.x, transform.position.y, destination.z));
+
+        Vector3 direction = (target.position - transform.position).normalized;
+        Vector3 initialPos = transform.position + direction;
+        transform.LookAt(new Vector3(initialPos.x, transform.position.y, initialPos.z));
 
         yield return new WaitForSeconds(0.5f);
+        isCharging = true;
         animator.SetInteger("State", 1);
 
-        while (true) {
-            transform.position = Vector3.MoveTowards(transform.position, destination, chargeSpeed * Time.deltaTime);
-            transform.LookAt(new Vector3(destination.x, transform.position.y, destination.z));
+        float startTime = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup - startTime < chargeDuration) {
+            Vector3 newPos = transform.position + direction * chargeSpeed * Time.deltaTime;
+            transform.position = newPos;
+            transform.LookAt(new Vector3(newPos.x, transform.position.y, newPos.z));
 
-            if ((transform.position - destination).magnitude < 2) break;
-            Debug.Log("o");
             yield return null;
         }
 
+        isCharging = false;
         animator.SetInteger("State", 0);
 
         yield return new WaitForSeconds(1);

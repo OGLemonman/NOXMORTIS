@@ -3,6 +3,10 @@ using System.Collections;
 
 public class NormalEnemyController : MonoBehaviour
 {
+    public AudioSource walkSource;
+    public AudioSource miscSource;
+    public AudioClip growlAudio;
+    public AudioClip attackAudio;
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
@@ -22,6 +26,7 @@ public class NormalEnemyController : MonoBehaviour
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
+    private IEnumerator attackCoroutine;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -29,11 +34,24 @@ public class NormalEnemyController : MonoBehaviour
         stateMachine.AddState("Patrolling", new NormalPatrollingState(this));
         stateMachine.AddState("Following", new NormalFollowingState(this));
         stateMachine.AddState("Attacking", new NormalAttackingState(this));
+        stateMachine.AddState("Stunned", new NormalStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
+    }
+
+    void OnTriggerEnter(Collider other) {
+        if (!other.CompareTag("TazerProjectile")) return;
+
+        if (attackCoroutine != null) {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        ChangeState("Stunned");
+        other.gameObject.SetActive(false);
     }
 
     void OnDrawGizmos() {
@@ -92,7 +110,8 @@ public class NormalEnemyController : MonoBehaviour
     public void TryAttack() {
         if (Time.realtimeSinceStartup - lastAttack > attackCooldown) {
             lastAttack = Time.realtimeSinceStartup;
-            StartCoroutine(Attack());
+            attackCoroutine = Attack();
+            StartCoroutine(attackCoroutine);
         } else {
             ChangeState("Following");
         }
@@ -101,6 +120,7 @@ public class NormalEnemyController : MonoBehaviour
     IEnumerator Attack() {
         animator.SetInteger("State", 2);
         yield return new WaitForSeconds(1);
+        miscSource.PlayOneShot(attackAudio);
         if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
             target.GetComponent<playerstats>().currentHP -= damage;
         }

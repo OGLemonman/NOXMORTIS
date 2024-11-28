@@ -22,6 +22,7 @@ public class SlowEnemyController : MonoBehaviour
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
+    private IEnumerator attackCoroutine;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
@@ -29,11 +30,24 @@ public class SlowEnemyController : MonoBehaviour
         stateMachine.AddState("Patrolling", new SlowPatrollingState(this));
         stateMachine.AddState("Following", new SlowFollowingState(this));
         stateMachine.AddState("Attacking", new SlowAttackingState(this));
+        stateMachine.AddState("Stunned", new SlowStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
+    }
+    
+    void OnTriggerEnter(Collider other) {
+        if (!other.CompareTag("TazerProjectile")) return;
+
+        if (attackCoroutine != null) {
+            StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
+        }
+
+        ChangeState("Stunned");
+        other.gameObject.SetActive(false);
     }
 
     void OnDrawGizmos() {
@@ -92,7 +106,8 @@ public class SlowEnemyController : MonoBehaviour
     public void TryAttack() {
         if (Time.realtimeSinceStartup - lastAttack > attackCooldown) {
             lastAttack = Time.realtimeSinceStartup;
-            StartCoroutine(Attack());
+            attackCoroutine = Attack();
+            StartCoroutine(attackCoroutine);
         } else {
             ChangeState("Following");
         }
