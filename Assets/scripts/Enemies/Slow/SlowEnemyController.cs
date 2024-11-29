@@ -3,6 +3,10 @@ using System.Collections;
 
 public class SlowEnemyController : MonoBehaviour
 {
+    public AudioSource slowWalkSource;
+    public AudioSource slowMiscSource;
+    public AudioClip slowGrowlAudio;
+    public AudioClip slowAttackAudio;
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
@@ -116,6 +120,7 @@ public class SlowEnemyController : MonoBehaviour
     IEnumerator Attack() {
         animator.SetInteger("State", 2);
         yield return new WaitForSeconds(2);
+        slowMiscSource.PlayOneShot(slowAttackAudio);
         if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
             target.GetComponent<playerstats>().currentHP -= damage;
         }
