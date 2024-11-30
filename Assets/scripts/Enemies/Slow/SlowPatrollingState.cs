@@ -8,6 +8,8 @@ public class SlowPatrollingState : StateBase
     private float lastWalkTime;
     private float randomWaitTime;
     private Vector3 destination;
+    private float lastGrowl = -1000f;
+    private float growlCooldown;
     
     
 
@@ -62,6 +64,12 @@ public class SlowPatrollingState : StateBase
                 randomWaitTime = Random.Range(2f, 8f);
                 walking = false;
             }
+
+            if (Time.realtimeSinceStartup - lastGrowl > growlCooldown) {
+            lastGrowl = Time.realtimeSinceStartup;
+            growlCooldown = Random.Range(4f, 12f);
+            controller.slowMiscSource.PlayOneShot(controller.slowGrowlAudio);
+        }
         }
     }
 }
