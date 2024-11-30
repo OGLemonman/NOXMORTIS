@@ -1,19 +1,17 @@
 using UnityEngine;
 
-public class SlowPatrollingState : StateBase
+public class NormalPatrollingState : StateBase
 {
-    private SlowEnemyController controller;
+    private NormalEnemyController controller;
     private Vector3 origin;
     private bool walking;
     private float lastWalkTime;
     private float randomWaitTime;
     private Vector3 destination;
-    private float lastGrowl = -1000f;
+    private float lastGrowl = -1000;
     private float growlCooldown;
-    
-    
 
-    public SlowPatrollingState(SlowEnemyController _controller) {
+    public NormalPatrollingState(NormalEnemyController _controller) {
         controller = _controller;
         origin = _controller.transform.position;
     }
@@ -64,12 +62,12 @@ public class SlowPatrollingState : StateBase
                 randomWaitTime = Random.Range(2f, 8f);
                 walking = false;
             }
-
-            if (Time.realtimeSinceStartup - lastGrowl > growlCooldown) {
-            lastGrowl = Time.realtimeSinceStartup;
-            growlCooldown = Random.Range(4f, 12f);
-            controller.slowMiscSource.PlayOneShot(controller.slowGrowlAudio);
         }
+
+        if (Time.realtimeSinceStartup - lastGrowl > growlCooldown) {
+            lastGrowl = Time.realtimeSinceStartup;
+            growlCooldown = Random.Range(3f, 10f);
+            controller.miscSource.PlayOneShot(controller.growlAudio);
         }
     }
 }

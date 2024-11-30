@@ -1,17 +1,17 @@
 using UnityEngine;
 using System.Collections;
 
-public class SlowEnemyController : MonoBehaviour
+public class NormalEnemyController : MonoBehaviour
 {
-    public AudioSource slowWalkSource;
-    public AudioSource slowMiscSource;
-    public AudioClip slowGrowlAudio;
-    public AudioClip slowAttackAudio;
+    public AudioSource walkSource;
+    public AudioSource miscSource;
+    public AudioClip growlAudio;
+    public AudioClip attackAudio;
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
     public Transform target;
-    public SlowEnemyGizmosSettings gizmosSettings;
+    public NormalEnemyGizmosSettings gizmosSettings;
     public float sightDistance = 10f;
     public float sightCone = 90f;
     public float hearDistance = 5f;
@@ -31,17 +31,17 @@ public class SlowEnemyController : MonoBehaviour
     void Start() {
         rb = GetComponent<Rigidbody>();
         stateMachine = new StateMachine();
-        stateMachine.AddState("Patrolling", new SlowPatrollingState(this));
-        stateMachine.AddState("Following", new SlowFollowingState(this));
-        stateMachine.AddState("Attacking", new SlowAttackingState(this));
-        stateMachine.AddState("Stunned", new SlowStunnedState(this));
+        stateMachine.AddState("Patrolling", new NormalPatrollingState(this));
+        stateMachine.AddState("Following", new NormalFollowingState(this));
+        stateMachine.AddState("Attacking", new NormalAttackingState(this));
+        stateMachine.AddState("Stunned", new NormalStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
     }
-    
+
     void OnTriggerEnter(Collider other) {
         if (!other.CompareTag("TazerProjectile")) return;
 
@@ -119,12 +119,12 @@ public class SlowEnemyController : MonoBehaviour
 
     IEnumerator Attack() {
         animator.SetInteger("State", 2);
-        yield return new WaitForSeconds(2);
-        slowMiscSource.PlayOneShot(slowAttackAudio);
+        yield return new WaitForSeconds(1);
+        miscSource.PlayOneShot(attackAudio);
         if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
             target.GetComponent<playerstats>().currentHP -= damage;
         }
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(2);
         ChangeState("Following");
         yield return null;
     }
@@ -134,7 +134,7 @@ public class SlowEnemyController : MonoBehaviour
     }
 
     [System.Serializable]
-    public struct SlowEnemyGizmosSettings {
+    public struct NormalEnemyGizmosSettings {
         public bool patrolCone;
         public bool followCone;
         public bool attackCone;

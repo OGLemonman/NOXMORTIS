@@ -1,47 +1,40 @@
 using UnityEngine;
 using System.Collections;
 
-public class SlowEnemyController : MonoBehaviour
+public class ChargerEnemyController : MonoBehaviour
 {
-    public AudioSource slowWalkSource;
-    public AudioSource slowMiscSource;
-    public AudioClip slowGrowlAudio;
-    public AudioClip slowAttackAudio;
     public Animator animator;
     public LayerMask agentMask;
     public float walkSpeed = 5f;
     public Transform target;
-    public SlowEnemyGizmosSettings gizmosSettings;
+    public ChargerEnemyGizmosSettings gizmosSettings;
     public float sightDistance = 10f;
     public float sightCone = 90f;
     public float hearDistance = 5f;
     public float hearCone = 360f;
-    public float followSpeed = 6f;
-    public float followSightDistance = 20f;
-    public float followSightCone = 120f;
-    public float attackSightDistance = 5f;
-    public float attackSightCone = 60f;
+    public float chargeSpeed = 9f;
+    public float chargeDuration = 2f;
     public float attackCooldown = 3f;
     public float damage = 70f;
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
     private IEnumerator attackCoroutine;
+    private bool isCharging;
 
     void Start() {
         rb = GetComponent<Rigidbody>();
         stateMachine = new StateMachine();
-        stateMachine.AddState("Patrolling", new SlowPatrollingState(this));
-        stateMachine.AddState("Following", new SlowFollowingState(this));
-        stateMachine.AddState("Attacking", new SlowAttackingState(this));
-        stateMachine.AddState("Stunned", new SlowStunnedState(this));
+        stateMachine.AddState("Patrolling", new ChargerPatrollingState(this));
+        stateMachine.AddState("Attacking", new ChargerAttackingState(this));
+        stateMachine.AddState("Stunned", new ChargerStunnedState(this));
         stateMachine.ChangeState("Patrolling");
     }
 
     void Update() {
         stateMachine.OnUpdate();
     }
-    
+
     void OnTriggerEnter(Collider other) {
         if (!other.CompareTag("TazerProjectile")) return;
 
@@ -50,8 +43,15 @@ public class SlowEnemyController : MonoBehaviour
             attackCoroutine = null;
         }
 
+        isCharging = false;
         ChangeState("Stunned");
         other.gameObject.SetActive(false);
+    }
+
+    void OnCollisionEnter(Collision collision) {
+        if (!isCharging || !collision.gameObject.CompareTag("Player")) return;
+
+        target.GetComponent<playerstats>().currentHP -= damage;
     }
 
     void OnDrawGizmos() {
@@ -68,30 +68,6 @@ public class SlowEnemyController : MonoBehaviour
 
             Gizmos.DrawLine(transform.position, transform.position  + vectorA * sightDistance);
             Gizmos.DrawLine(transform.position, transform.position  + vectorB * sightDistance);
-        }
-
-        // Following
-        if (gizmosSettings.followCone) {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, followSightDistance);
-
-            Vector3 vectorC = Quaternion.AngleAxis(followSightCone/2, Vector3.up) * transform.forward;
-            Vector3 vectorD = Quaternion.AngleAxis(-followSightCone/2, Vector3.up) * transform.forward;
-
-            Gizmos.DrawLine(transform.position, transform.position  + vectorC * followSightDistance);
-            Gizmos.DrawLine(transform.position, transform.position  + vectorD * followSightDistance);
-        }
-
-        // Attacking
-        if (gizmosSettings.attackCone) {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, attackSightDistance);
-
-            Vector3 vectorE = Quaternion.AngleAxis(attackSightCone/2, Vector3.up) * transform.forward;
-            Vector3 vectorF = Quaternion.AngleAxis(-attackSightCone/2, Vector3.up) * transform.forward;
-
-            Gizmos.DrawLine(transform.position, transform.position  + vectorE * attackSightDistance);
-            Gizmos.DrawLine(transform.position, transform.position  + vectorF * attackSightDistance);
         }
 
         // Hearing
@@ -113,19 +89,35 @@ public class SlowEnemyController : MonoBehaviour
             attackCoroutine = Attack();
             StartCoroutine(attackCoroutine);
         } else {
-            ChangeState("Following");
+            ChangeState("Patrolling");
         }
     }
 
     IEnumerator Attack() {
-        animator.SetInteger("State", 2);
-        yield return new WaitForSeconds(2);
-        slowMiscSource.PlayOneShot(slowAttackAudio);
-        if (SightCheck.IsInSight(transform, target.transform.position, attackSightDistance, attackSightCone)) {
-            target.GetComponent<playerstats>().currentHP -= damage;
+        animator.SetInteger("State", 0);
+
+        Vector3 direction = (target.position - transform.position).normalized;
+        Vector3 initialPos = transform.position + direction;
+        transform.LookAt(new Vector3(initialPos.x, transform.position.y, initialPos.z));
+
+        yield return new WaitForSeconds(0.5f);
+        isCharging = true;
+        animator.SetInteger("State", 1);
+
+        float startTime = Time.realtimeSinceStartup;
+        while (Time.realtimeSinceStartup - startTime < chargeDuration) {
+            Vector3 newPos = transform.position + direction * chargeSpeed * Time.deltaTime;
+            transform.position = newPos;
+            transform.LookAt(new Vector3(newPos.x, transform.position.y, newPos.z));
+
+            yield return null;
         }
-        yield return new WaitForSeconds(3);
-        ChangeState("Following");
+
+        isCharging = false;
+        animator.SetInteger("State", 0);
+
+        yield return new WaitForSeconds(1);
+        ChangeState("Patrolling");
         yield return null;
     }
 
@@ -134,10 +126,8 @@ public class SlowEnemyController : MonoBehaviour
     }
 
     [System.Serializable]
-    public struct SlowEnemyGizmosSettings {
+    public struct ChargerEnemyGizmosSettings {
         public bool patrolCone;
-        public bool followCone;
-        public bool attackCone;
         public bool hearCone;
     }
 }
