@@ -16,6 +16,7 @@ public class ChargerEnemyController : MonoBehaviour
     public float chargeDuration = 2f;
     public float attackCooldown = 3f;
     public float damage = 70f;
+    public bool inImmune = false;
     private float lastAttack;
     private Rigidbody rb;
     private StateMachine stateMachine;
@@ -32,6 +33,7 @@ public class ChargerEnemyController : MonoBehaviour
     }
 
     void Update() {
+        if (inImmune) ChangeState("Patrolling");
         stateMachine.OnUpdate();
     }
 
