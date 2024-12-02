@@ -36,10 +36,12 @@ public class SlowPatrollingState : StateBase
     }
 
     public override void OnUpdate() {
-        if (SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.sightDistance, controller.sightCone) ||
-            SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.hearDistance, controller.hearCone)) {
-            controller.ChangeState("Following");
-            return;
+        if (!controller.inImmune) {
+            if (SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.sightDistance, controller.sightCone) ||
+                SightCheck.IsInSight(controller.transform, controller.target.transform.position, controller.hearDistance, controller.hearCone)) {
+                controller.ChangeState("Following");
+                return;
+            }
         }
 
         if (!walking) {
