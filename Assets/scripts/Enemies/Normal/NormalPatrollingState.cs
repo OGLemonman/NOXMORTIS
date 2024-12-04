@@ -18,9 +18,9 @@ public class NormalPatrollingState : StateBase
 
     private bool GetNewDestination(out Vector3 _destination) {
         Vector3 trialDestination = new Vector3(
-            origin.x + Random.Range(-10f, 10f),
+            origin.x + Random.Range(-3f, 3f),
             origin.y + 10,
-            origin.z + Random.Range(-10f, 10f)
+            origin.z + Random.Range(-3f, 3f)
         );
 
         Ray ray = new Ray(trialDestination, Vector3.down);
@@ -58,7 +58,7 @@ public class NormalPatrollingState : StateBase
             controller.transform.position = Vector3.MoveTowards(controller.transform.position, destination, controller.walkSpeed * Time.deltaTime);
             controller.transform.LookAt(new Vector3(destination.x, controller.transform.position.y, destination.z));
 
-            float dist = (destination - controller.transform.position).sqrMagnitude;
+            float dist = (destination - controller.transform.position).sqrMagnitude; 
             if (dist < 2) {
                 lastWalkTime = Time.realtimeSinceStartup;
                 randomWaitTime = Random.Range(2f, 8f);
