@@ -34,6 +34,7 @@ public class DayCycle : MonoBehaviour {
 
     void Start() {
         playerStats = player.GetComponent<playerstats>();
+        Cursor.lockState = CursorLockMode.Locked;
         dayCoroutine = AdvanceDay();
         StartCoroutine(dayCoroutine);
     }
@@ -62,6 +63,7 @@ public class DayCycle : MonoBehaviour {
     public void Died() {
         StopCoroutine(dayCoroutine);
         Time.timeScale = 0;
+        Cursor.lockState = CursorLockMode.None;
         diedPanel.gameObject.SetActive(true);
         uiSource.PlayOneShot(diedAudio);
     }
@@ -71,6 +73,7 @@ public class DayCycle : MonoBehaviour {
     }
 
     IEnumerator Win() {
+        Cursor.lockState = CursorLockMode.None;
         uiSource.PlayOneShot(winAudio);
         yield return new WaitForSecondsRealtime(8);
         winPanel.gameObject.SetActive(true);
@@ -134,6 +137,9 @@ public class DayCycle : MonoBehaviour {
         playerstats playerStats = player.gameObject.GetComponent<playerstats>();
         playerStats.currentHunger -= 20f;
         playerStats.currentWater -= 20f;
+        if (playerStats.currentHP <= 70) {
+            playerStats.currentHP += 30;
+        }
 
         // Fade day text out
         Color startColor = dayAnnouncementText.color;
