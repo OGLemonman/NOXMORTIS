@@ -74,6 +74,17 @@ public class playerstats : MonoBehaviour
             currentHP -= .5f * Time.deltaTime;
         }
 
+        if (currentTemperature >= 100) {
+            currentTemperature -= 1f * Time.deltaTime;
+        } else {
+            currentTemperature -= .3f * Time.deltaTime;
+        }
+
+        //Lose HP if Cold or Hot
+        if (currentTemperature <= 10 || currentTemperature >= 100) {
+            currentHP -= .5F * Time.deltaTime;
+        }
+
         hpSlider.value = currentHP;
         foodSlider.value = currentHunger;
         waterSlider.value = currentWater;
