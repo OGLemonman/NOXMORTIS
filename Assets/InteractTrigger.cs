@@ -50,14 +50,14 @@ public class InteractTrigger : MonoBehaviour
         {
             Debug.Log("Get food");
             //increase hunger
-            playerstats.currentHunger += 25;
+            playerstats.currentHunger += 35;
         }
 
         if(collider.gameObject.tag == "water")
         {
             Debug.Log("Get water");
             //increase thirst
-            playerstats.currentWater += 25;
+            playerstats.currentWater += 35;
         }
     }
 }

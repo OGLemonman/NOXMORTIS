@@ -14,7 +14,7 @@ public class Warmzone : MonoBehaviour
     {
         if(collider.gameObject.tag == "Player")
         {
-            playerstats.currentTemperature += 1 * Time.deltaTime;
+            playerstats.currentTemperature += 5 * Time.deltaTime;
         }
 
     }

@@ -56,8 +56,8 @@ public class playerstats : MonoBehaviour
         Mathf.Clamp(currentWater, 0, maxWater);
 
 
-        currentHunger -= .5f * Time.deltaTime;
-        currentWater -= .5f * Time.deltaTime;
+        currentHunger -= .3f * Time.deltaTime;
+        currentWater -= .3f * Time.deltaTime;
 
         if(currentHunger <= 0)
         {
