@@ -32,8 +32,7 @@ public class DayCycle : MonoBehaviour {
     public GameObject craneOld;
     public GameObject craneNew;
     private int currentDay = 0;
-    private int woodNeeded;
-    private int stoneNeeded; 
+    private int woodNeeded; 
     private float dayTimeElapsed;
     private IEnumerator dayCoroutine;
     private playerstats playerStats;
@@ -46,9 +45,8 @@ public class DayCycle : MonoBehaviour {
         craneOld.SetActive(true);
         craneNew.SetActive(false);
 
-        woodNeeded = 30;
-        stoneNeeded = 0;
-        objectiveText.text = "Objective: Collect 30 wood to maintain campfire";
+        woodNeeded = 50;
+        objectiveText.text = "Objective: Collect 50 wood to maintain campfire";
         objectiveText.color = new Color32(255, 0, 0, 255);
 
         dayCoroutine = AdvanceDay();
@@ -144,12 +142,6 @@ public class DayCycle : MonoBehaviour {
             objectiveText.text = "Objective Failed";
             objectiveText.color = new Color32(255, 0, 0, 255);
             campfire.SetActive(false);
-        } else if (playerResources.playerStone >= stoneNeeded && currentDay >= 3) {
-            playerResources.playerStone -= stoneNeeded;
-            objectiveText.text = "Objective Complete";
-            objectiveText.color = new Color32(0, 255, 0, 255);
-            stoneNeeded = 0;
-            campfire.SetActive(true);
         }
 
         // Display cinematic day text
@@ -201,12 +193,8 @@ public class DayCycle : MonoBehaviour {
 
         //New Objective
         if (campfire.activeInHierarchy == false) {
-            woodNeeded = 30;
-            objectiveText.text = "Objective: Collect 30 wood to maintain campfire";
-            objectiveText.color = new Color32(255, 0, 0, 255);
-        } else if (currentDay == 3) {
-            stoneNeeded = 30;
-            objectiveText.text = "Objective: Collect 30 stone to maintain campfire";
+            woodNeeded = 50;
+            objectiveText.text = "Objective: Collect 50 wood to maintain campfire";
             objectiveText.color = new Color32(255, 0, 0, 255);
         }
 
