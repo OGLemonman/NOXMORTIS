@@ -22,7 +22,6 @@ public class playerstats : MonoBehaviour
     
     public Slider temperatureSlider;
 
-
     public bool isHungry;
     public bool isThirsty;
 
