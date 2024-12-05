@@ -12,6 +12,7 @@ public class DayCycle : MonoBehaviour {
     public Text dayAnnouncementText;
     public TMP_Text dayDisplay;
     public TMP_Text timeDisplay;
+    public TMP_Text objectiveText;
     public AudioClip keyPressAudio;
     public AudioClip sirenAudio;
     public AudioClip diedAudio;
@@ -27,18 +28,29 @@ public class DayCycle : MonoBehaviour {
     public TMP_Text warningText; 
     public RectTransform diedPanel;
     public RectTransform winPanel;
+    public GameObject campfire;
     public GameObject craneOld;
     public GameObject craneNew;
     private int currentDay = 0;
+    private int woodNeeded;
+    private int stoneNeeded; 
     private float dayTimeElapsed;
     private IEnumerator dayCoroutine;
     private playerstats playerStats;
+    private PlayerResources playerResources;
 
     void Start() {
         playerStats = player.GetComponent<playerstats>();
+        playerResources = player.GetComponent<PlayerResources>();
         Cursor.lockState = CursorLockMode.Locked;
         craneOld.SetActive(true);
         craneNew.SetActive(false);
+
+        woodNeeded = 30;
+        stoneNeeded = 0;
+        objectiveText.text = "Objective: Collect 30 wood to maintain campfire";
+        objectiveText.color = new Color32(255, 0, 0, 255);
+
         dayCoroutine = AdvanceDay();
         StartCoroutine(dayCoroutine);
     }
@@ -52,6 +64,14 @@ public class DayCycle : MonoBehaviour {
 
             string formattedTime = $"{hours:D2}:{minutes:D2}";
             timeDisplay.text = formattedTime;
+        }
+
+        if (playerResources.playerWood >= woodNeeded) {
+            playerResources.playerWood -= woodNeeded;
+            objectiveText.text = "Objective Complete";
+            objectiveText.color = new Color32(0, 255, 0, 255);
+            woodNeeded = 0;
+            campfire.SetActive(true);
         }
 
         if (currentDay >= 4) {
@@ -119,6 +139,19 @@ public class DayCycle : MonoBehaviour {
             }
         }
 
+        //Objective Incomplete
+        if (playerResources.playerWood < woodNeeded) {
+            objectiveText.text = "Objective Failed";
+            objectiveText.color = new Color32(255, 0, 0, 255);
+            campfire.SetActive(false);
+        } else if (playerResources.playerStone >= stoneNeeded && currentDay >= 3) {
+            playerResources.playerStone -= stoneNeeded;
+            objectiveText.text = "Objective Complete";
+            objectiveText.color = new Color32(0, 255, 0, 255);
+            stoneNeeded = 0;
+            campfire.SetActive(true);
+        }
+
         // Display cinematic day text
         dayAnnouncementText.text = "";
 
@@ -165,6 +198,17 @@ public class DayCycle : MonoBehaviour {
 
         dayAnnouncementText.color = endColor;
         yield return new WaitForSecondsRealtime(1.5f);
+
+        //New Objective
+        if (campfire.activeInHierarchy == false) {
+            woodNeeded = 30;
+            objectiveText.text = "Objective: Collect 30 wood to maintain campfire";
+            objectiveText.color = new Color32(255, 0, 0, 255);
+        } else if (currentDay == 3) {
+            stoneNeeded = 30;
+            objectiveText.text = "Objective: Collect 30 stone to maintain campfire";
+            objectiveText.color = new Color32(255, 0, 0, 255);
+        }
 
         // Spawn mobs
         for (int i = 0; i < spawnCount; i++) {
