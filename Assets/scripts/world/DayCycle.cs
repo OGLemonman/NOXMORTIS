@@ -27,6 +27,8 @@ public class DayCycle : MonoBehaviour {
     public TMP_Text warningText; 
     public RectTransform diedPanel;
     public RectTransform winPanel;
+    public GameObject craneOld;
+    public GameObject craneNew;
     private int currentDay = 0;
     private float dayTimeElapsed;
     private IEnumerator dayCoroutine;
@@ -35,6 +37,8 @@ public class DayCycle : MonoBehaviour {
     void Start() {
         playerStats = player.GetComponent<playerstats>();
         Cursor.lockState = CursorLockMode.Locked;
+        craneOld.SetActive(true);
+        craneNew.SetActive(false);
         dayCoroutine = AdvanceDay();
         StartCoroutine(dayCoroutine);
     }
@@ -48,6 +52,11 @@ public class DayCycle : MonoBehaviour {
 
             string formattedTime = $"{hours:D2}:{minutes:D2}";
             timeDisplay.text = formattedTime;
+        }
+
+        if (currentDay >= 4) {
+            craneOld.SetActive(false);
+            craneNew.SetActive(true);
         }
 
         if (playerStats.currentHP <= 0 && !diedPanel.gameObject.activeSelf) {
