@@ -82,7 +82,9 @@ public class playerstats : MonoBehaviour
 
         //Lose HP if Cold or Hot
         if (currentTemperature <= 10 || currentTemperature >= 100) {
-            currentHP -= .5F * Time.deltaTime;
+            currentHP -= .2F * Time.deltaTime;
+        } else {
+            currentHP -= 0;
         }
 
         hpSlider.value = currentHP;
